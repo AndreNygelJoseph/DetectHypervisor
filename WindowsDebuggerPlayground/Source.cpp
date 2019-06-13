@@ -9,7 +9,7 @@
 
 #include <bitset>
 
-enum Registers{
+enum Registers {
 	EAX,
 	EBX,
 	ECX,
@@ -17,8 +17,8 @@ enum Registers{
 };
 
 #ifdef __linux__
-static inline void native_cpuid(unsigned int* eax, unsigned int* ebx,
-	unsigned int* ecx, unsigned int* edx)
+static inline void native_cpuid(int* eax, int* ebx,
+	int* ecx, int* edx)
 {
 	/* ecx is often an input as well as an output. */
 	asm volatile("cpuid"
@@ -31,7 +31,10 @@ static inline void native_cpuid(unsigned int* eax, unsigned int* ebx,
 
 static inline void __cpuid(int* registers, int function)
 {
-	int registers[4] = { 0 };
+	registers[0] = 0;
+	registers[1] = 0;
+	registers[2] = 0;
+	registers[3] = 0;
 	registers[0] = function;
 	native_cpuid(&registers[0], &registers[1], &registers[2], &registers[3]);
 }
@@ -60,7 +63,7 @@ static void IdentifyHypervisor()
 	std::string signature;
 	for (const Registers r : { EBX, ECX, EDX })
 	{
-		
+
 		int iid = regs[r];
 
 		while (iid > 0)
@@ -68,12 +71,16 @@ static void IdentifyHypervisor()
 			signature += (char)(iid & 0x000000ff);
 			iid >>= 8;
 		}
-		
+
 	}
 	std::cout << "Vendor ID Signature: " << signature << std::endl;
 	std::cout << std::endl << std::endl;
 
-
+	if (signature != "Microsoft Hv")
+	{
+		return;
+	}
+	/* The leaves below this will only work properly if the hypervisor is HyperV (i.e. signature == "Microsoft Hv")*/
 	std::cout << "Leaf 0x40000001 - Hypervisor Interface Signature" << std::endl;
 	__cpuid((int*)regs, 0x40000001);
 	std::string interfaceId;
@@ -92,7 +99,7 @@ static void IdentifyHypervisor()
 	std::cout << "Hypervisor Interface Signature: " << interfaceId << std::endl;
 	std::cout << std::endl << std::endl;
 
-	
+
 	std::cout << "Leaf 0x40000002 - Hypervisor system identity " << std::endl;
 	__cpuid((int*)regs, 0x40000002);
 	std::cout << "Build Number: " << std::dec << regs[EAX] << std::endl;
@@ -112,18 +119,18 @@ static void IdentifyHypervisor()
 	std::cout << "------------------------------------" << std::endl;
 	std::bitset<32> privileges(regs[EAX]);
 	/*
-		Bit 0 AccessVpRunTimeMsr				Optional 
-		Bit 1 AccessPartitionReferenceCounter	Optional 
-		Bit 2 AccessSynicMsrs					Optional 
-		Bit 3 AccessSyntheticTimerMsrs			Optional 
-		Bit 4 AccessApicMsrs					Optional 
-		Bit 5 AccessHypercallMsrs				Must be set 
-		Bit 6 AccessVpIndex						Must be set 
-		Bit 7 AccessResetMsr					Optional 
+		Bit 0 AccessVpRunTimeMsr				Optional
+		Bit 1 AccessPartitionReferenceCounter	Optional
+		Bit 2 AccessSynicMsrs					Optional
+		Bit 3 AccessSyntheticTimerMsrs			Optional
+		Bit 4 AccessApicMsrs					Optional
+		Bit 5 AccessHypercallMsrs				Must be set
+		Bit 6 AccessVpIndex						Must be set
+		Bit 7 AccessResetMsr					Optional
 		Bit 8 AccessStatsMsr					Optional
-		Bit 9 AccessPartitionReferenceTsc		Optional 
-		Bit 10 AccessGuestIdleMsr				Optional 
-		Bit 11 AccessFrequencyMsrs				Optional 
+		Bit 9 AccessPartitionReferenceTsc		Optional
+		Bit 10 AccessGuestIdleMsr				Optional
+		Bit 11 AccessFrequencyMsrs				Optional
 		Bits 12-31								Reserved
 	*/
 	if (privileges[0])
@@ -179,19 +186,19 @@ static void IdentifyHypervisor()
 	std::cout << "-----------------------------------" << std::endl;
 	std::bitset<32> features(regs[EBX]);
 	/*
-		Bit 0: CreatePartitions			Must be clear 
-		Bit 1: AccessPartitionId		Must be clear 
-		Bit 2: AccessMemoryPool			Must be clear 
-		Bit 3: AdjustMessageBuffers		Must be clear 
-		Bit 4: PostMessages				Optional 
-		Bit 5: SignalEvents				Optional 
-		Bit 6: CreatePort				Must be clear 
-		Bit 7: ConnectPort				Optional 
-		Bit 8: AccessStats				Must be clear 
-		Bit 9-10:						Reserved2  
-		Bit 11:	Debugging				Optional 
-		Bit 12: CpuManagement			Must be clear 
-		Bit 13: ConfigureProfiler		Must be clear 
+		Bit 0: CreatePartitions			Must be clear
+		Bit 1: AccessPartitionId		Must be clear
+		Bit 2: AccessMemoryPool			Must be clear
+		Bit 3: AdjustMessageBuffers		Must be clear
+		Bit 4: PostMessages				Optional
+		Bit 5: SignalEvents				Optional
+		Bit 6: CreatePort				Must be clear
+		Bit 7: ConnectPort				Optional
+		Bit 8: AccessStats				Must be clear
+		Bit 9-10:						Reserved2
+		Bit 11:	Debugging				Optional
+		Bit 12: CpuManagement			Must be clear
+		Bit 13: ConfigureProfiler		Must be clear
 		Bit 14-31:						Reserved3
 	*/
 	if (features[0])

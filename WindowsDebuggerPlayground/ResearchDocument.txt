@@ -19,8 +19,8 @@ https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/reference/hyp
   the other hand, "Partitions do not have access to the physical processor, nor do they handle the processor interrupts". That does
   not make any sense to me. The VM stack runs in the parent partition, so it shouldn't be able to have direct access to hardware, right?
 
-  Output from Root Partition
-  A Hypervisor is present
+Output from Root Partition
+A Hypervisor is present
 Leaf 0x40000000 - Hypervisor CPUID leaf range and vendor ID signature
 CPUID Leaf Range: 4000000b
 Vendor ID Signature: Microsoft Hv
@@ -136,6 +136,94 @@ Number of attempts to retry a spinlock: fff
 Leaf 0x40000005 - Implementation Limits 
 Virtual Processors Supported: 240
 Logical Processors Supported: 512
+
+
+Output from Linux VM on VMWare
+A Hypervisor is present
+Leaf 0x40000000 - Hypervisor CPUID leaf range and vendor ID signature
+CPUID Leaf Range: 40000010
+Vendor ID Signature: VMwareVMware
+
+
+Leaf 0x40000001 - Hypervisor Interface Signature
+Hypervisor Interface Signature: 
+
+
+Leaf 0x40000002 - Hypervisor system identity 
+Build Number: 0
+Major.Minor: 0.0
+Service Pack: 0
+ServiceBranch.ServiceNumber 0.0
+
+
+Leaf 0x40000003 - Hypervisor feature identification 
+Features: 0
+Flags: 0
+Power Management: 0
+Misc 0
+Partition Privileges 
+------------------------------------
+-----------------------------------
+Feature Identification 
+-----------------------------------
+-----------------------------------
+
+
+Leaf 0x40000004 - Enlightenment Implementation Recommendations 
+Implementation Recommendations: 0
+Number of attempts to retry a spinlock: 0
+
+
+Leaf 0x40000005 - Implementation Limits 
+Virtual Processors Supported: 0
+Logical Processors Supported: 0
+
+Output from Windows VM on VMWare
+A Hypervisor is present
+Leaf 0x40000000 - Hypervisor CPUID leaf range and vendor ID signature
+CPUID Leaf Range: 40000010
+Vendor ID Signature: VMwareVMware
+
+
+Leaf 0x40000001 - Hypervisor Interface Signature
+Hypervisor Interface Signature: Hv#1
+
+
+Leaf 0x40000002 - Hypervisor system identity 
+Build Number: 0
+Major.Minor: 0.0
+Service Pack: 0
+ServiceBranch.ServiceNumber 0.0
+
+
+Leaf 0x40000003 - Hypervisor feature identification 
+Features: a72
+Flags: 0
+Power Management: 0
+Misc 508
+Partition Privileges 
+------------------------------------
+AccessPartitionReferenceCounter
+AccessApicMsrs
+AccessHypercallMsrs
+AccessVpIndex
+AccessPartitionReferenceTsc
+AccessFrequencyMsrs
+-----------------------------------
+Feature Identification 
+-----------------------------------
+-----------------------------------
+
+
+Leaf 0x40000004 - Enlightenment Implementation Recommendations 
+Implementation Recommendations: 20
+Number of attempts to retry a spinlock: 0
+
+
+Leaf 0x40000005 - Implementation Limits 
+Virtual Processors Supported: -1
+Logical Processors Supported: 0
+
 
 
 
