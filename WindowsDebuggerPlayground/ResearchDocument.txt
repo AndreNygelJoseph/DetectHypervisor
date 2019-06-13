@@ -1,0 +1,142 @@
+The Hyper-V documentation states something that seems contradictory to me
+
+https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/reference/hyper-v-architecture
+
+"Hyper-V supports isolation in terms of a partition. A partition is a logical unit of isolation, supported by the hypervisor, 
+ in which operating systems execute. The Microsoft hypervisor must have at least one parent, or root, partition, running Windows. 
+ ***The virtualization management stack runs in the parent partition and has direct access to hardware devices. *** 
+ The root partition then creates the child partitions which host the guest operating systems. A root partition creates 
+ child partitions using the hypercall application programming interface (API)."
+
+ "**Partitions do not have access to the physical processor, nor do they handle the processor interrupts. Instead, they have a 
+  virtual view of the processor and run in a virtual memory address region that is private to each guest partition. **
+  The hypervisor handles the interrupts to the processor, and redirects them to the respective partition. 
+  Hyper-V can also hardware accelerate the address translation between various guest virtual address spaces by using an 
+  Input Output Memory Management Unit (IOMMU) which operates independent of the memory management hardware used by the CPU. 
+  An IOMMU is used to remap physical memory addresses to the addresses that are used by the child partitions."
+
+  So on one hand, the "virtualization management stack runs in the parent partion and has *direct* access to hardware", but on
+  the other hand, "Partitions do not have access to the physical processor, nor do they handle the processor interrupts". That does
+  not make any sense to me. The VM stack runs in the parent partition, so it shouldn't be able to have direct access to hardware, right?
+
+  Output from Root Partition
+  A Hypervisor is present
+Leaf 0x40000000 - Hypervisor CPUID leaf range and vendor ID signature
+CPUID Leaf Range: 4000000b
+Vendor ID Signature: Microsoft Hv
+
+
+Leaf 0x40000001 - Hypervisor Interface Signature
+Hypervisor Interface Signature: Hv#1
+
+
+Leaf 0x40000002 - Hypervisor system identity 
+Build Number: 18362
+Major.Minor: 10.0
+Service Pack: 0
+ServiceBranch.ServiceNumber 0.175
+
+
+Leaf 0x40000003 - Hypervisor feature identification 
+Features: 3fff
+Flags: 2bb9ff
+Power Management: 2
+Misc 1dfffbf6
+Partition Privileges 
+------------------------------------
+AccessVpnRunTimeMsr
+AccessPartitionReferenceCounter
+AccessSynicMsrs
+AccessSyntheticTimerMsrs
+AccessApicMsrs
+AccessHypercallMsrs
+AccessVpIndex
+AccessResetMsr
+AccessStatsMsr
+AccessPartitionReferenceTsc
+AccessGuestIdleMsr
+AccessFrequencyMsrs
+-----------------------------------
+Feature Identification 
+-----------------------------------
+CreatePartitions
+AccessPartitionId
+AccessMemoryPool
+AdjustMessageBuffers
+PostMessages
+SignalEvents
+CreatePort
+ConnectPort
+AccessStats
+Debugging
+CpuManagement
+ConfigureProfiler
+-----------------------------------
+
+
+Leaf 0x40000004 - Enlightenment Implementation Recommendations 
+Implementation Recommendations: 62d1c
+Number of attempts to retry a spinlock: 0
+
+
+Leaf 0x40000005 - Implementation Limits 
+Virtual Processors Supported: 320
+Logical Processors Supported: 512
+
+
+Output from Child Partition
+A Hypervisor is present
+Leaf 0x40000000 - Hypervisor CPUID leaf range and vendor ID signature
+CPUID Leaf Range: 40000006
+Vendor ID Signature: Microsoft Hv
+
+
+Leaf 0x40000001 - Hypervisor Interface Signature
+Hypervisor Interface Signature: Hv#1
+
+
+Leaf 0x40000002 - Hypervisor system identity 
+Build Number: 18362
+Major.Minor: 10.0
+Service Pack: 0
+ServiceBranch.ServiceNumber 0.175
+
+
+Leaf 0x40000003 - Hypervisor feature identification 
+Features: 2e7f
+Flags: 3b80b0
+Power Management: 2
+Misc bed7b2
+Partition Privileges 
+------------------------------------
+AccessVpnRunTimeMsr
+AccessPartitionReferenceCounter
+AccessSynicMsrs
+AccessSyntheticTimerMsrs
+AccessApicMsrs
+AccessHypercallMsrs
+AccessVpIndex
+AccessPartitionReferenceTsc
+AccessGuestIdleMsr
+AccessFrequencyMsrs
+-----------------------------------
+Feature Identification 
+-----------------------------------
+PostMessages
+SignalEvents
+ConnectPort
+-----------------------------------
+
+
+Leaf 0x40000004 - Enlightenment Implementation Recommendations 
+Implementation Recommendations: 22c2c
+Number of attempts to retry a spinlock: fff
+
+
+Leaf 0x40000005 - Implementation Limits 
+Virtual Processors Supported: 240
+Logical Processors Supported: 512
+
+
+
+
