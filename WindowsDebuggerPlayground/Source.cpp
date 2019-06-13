@@ -2,8 +2,11 @@
 #include <cstdlib>
 #include <cmath>
 #include <string>
-#include <Windows.h>
+
+#ifdef _WIN32
 #include <intrin.h>
+#endif
+
 #include <bitset>
 
 enum Registers{
@@ -12,6 +15,28 @@ enum Registers{
 	ECX,
 	EDX
 };
+
+#ifdef __linux__
+static inline void native_cpuid(unsigned int* eax, unsigned int* ebx,
+	unsigned int* ecx, unsigned int* edx)
+{
+	/* ecx is often an input as well as an output. */
+	asm volatile("cpuid"
+		: "=a" (*eax),
+		"=b" (*ebx),
+		"=c" (*ecx),
+		"=d" (*edx)
+		: "0" (*eax), "2" (*ecx));
+}
+
+static inline void __cpuid(int* registers, int function)
+{
+	int registers[4] = { 0 };
+	registers[0] = function;
+	native_cpuid(&registers[0], &registers[1], &registers[2], &registers[3]);
+}
+#endif
+
 
 static bool IsHypervisorPresent()
 {

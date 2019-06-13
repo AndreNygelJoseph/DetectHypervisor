@@ -9,3 +9,9 @@
 *.opendb
 *.db
 *.suo
+*.tlog
+*.obj
+*.idb
+*.pdb
+*.exe
+*.ilk
