@@ -6,8 +6,6 @@
 #include <intrin.h>
 #include <bitset>
 
-//extern void __stdcall Sleep(unsigned long);
-
 enum Registers{
 	EAX,
 	EBX,
@@ -15,10 +13,11 @@ enum Registers{
 	EDX
 };
 
-static bool IsRunningInHyperVCompliantHypervisor()
+static bool IsHypervisorPresent()
 {
 	Registers regs[sizeof(Registers)];
 
+	/* ECX:31 of CPUID leaf 1 is supposed to be set if a hypervisor is present */
 	__cpuid((int*)regs, 1);
 	return (regs[ECX] & 0x80000000) != 0;
 }
@@ -28,9 +27,11 @@ static void IdentifyHypervisor()
 	std::ios_base::fmtflags f(std::cout.flags());
 	Registers regs[sizeof(Registers)];
 
+	/* leaves 0x40000000 - 0x400000ff are reserved for the hypervisor to provide an interface to pass information to the guest OS*/
+
 	std::cout << "Leaf 0x40000000 - Hypervisor CPUID leaf range and vendor ID signature" << std::endl;
 	__cpuid((int*)regs, 0x40000000);
-	std::cout << "CPUID Leaf Range: " << regs[EAX] << std::endl;
+	std::cout << std::hex << "CPUID Leaf Range: " << regs[EAX] << std::endl;
 	std::string signature;
 	for (const Registers r : { EBX, ECX, EDX })
 	{
@@ -69,7 +70,7 @@ static void IdentifyHypervisor()
 	
 	std::cout << "Leaf 0x40000002 - Hypervisor system identity " << std::endl;
 	__cpuid((int*)regs, 0x40000002);
-	std::cout << "Build Number: " << regs[EAX] << std::endl;
+	std::cout << "Build Number: " << std::dec << regs[EAX] << std::endl;
 	std::cout << "Major.Minor: " << ((regs[EBX] & 0xffff0000) >> 16) << '.' << (regs[EBX] & 0x0000ffff) << std::endl;
 	std::cout << "Service Pack: " << regs[ECX] << std::endl;
 	std::cout << "ServiceBranch.ServiceNumber " << ((regs[EDX] & 0xffffff00) >> 8) << '.' << (regs[EDX] & 0x000000ff) << std::endl;
@@ -235,25 +236,14 @@ static void IdentifyHypervisor()
 
 int main(int argc, char** argv)
 {
-	if (IsRunningInHyperVCompliantHypervisor())
+	if (IsHypervisorPresent())
 	{
-		std::cout << "Running in a Hyper-V compliant hypervisor" << std::endl;
+		std::cout << "A Hypervisor is present" << std::endl;
 		IdentifyHypervisor();
 	}
 	else
 	{
-		std::cout << "Not running in a Hyper-V compliant hypervisor" << std::endl;
-		IdentifyHypervisor();
-	}
-
-	std::cout << "we're just gonna hang out forever until something happens" << std::endl;
-	std::string password("password");
-	int i = 0;
-
-	while (true)
-	{
-		Sleep(500);
-		std::cout << "still sleeping: " << i++ << std::endl;
+		std::cout << "A Hypervisor is not present" << std::endl;
 	}
 
 	return 0;

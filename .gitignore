@@ -3,3 +3,9 @@
 ################################################################################
 
 /WindowsDebuggerPlayground/x64/Debug/WindowsDebuggerPlayground.vcxproj.FileListAbsolute.txt
+/WindowsDebuggerPlayground/x64/Debug/WindowsDebuggerPlayground.log
+*.log
+*.ipch
+*.opendb
+*.db
+*.suo
